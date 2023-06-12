@@ -23,7 +23,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const usersCollection = client.db('ananda').collection('users')
-    // const roomsCollection = client.db('aircncDb').collection('rooms')
+    const classCollection = client.db('ananda').collection('class')
     // const bookingsCollection = client.db('aircncDb').collection('bookings')
 
     // user save to database
@@ -41,91 +41,53 @@ async function run() {
       })
 
 
-    //   // get user as role
-    //   app.get('/users/:email',async(req,res)=>{
-    //     const email=req.params.email;
-    //     const query={email:email}
-    //     const result=await usersCollection.findOne(query)
-    //     res.send(result)
-    //   })
+      // get user as role
+      app.get('/users/:email',async(req,res)=>{
+        const email=req.params.email;
+        const query={email:email}
+        const result=await usersCollection.findOne(query)
+        res.send(result)
+      })
 
 
-    //   // add rooms to database
-    //   app.post('/rooms',async(req,res)=>{
-    //     const rooms=req.body;
-    //     const result=await roomsCollection.insertOne(rooms);
-    //     res.send(result)
-    //   })
+      // add class to database
+      app.post('/class',async(req,res)=>{
+        const data=req.body;
+        const result=await classCollection.insertOne(data);
+        res.send(result)
+      })
+      
+
+      // get class by id
+      app.put('/class/:id',async(req,res)=>{
+        const id=req.params.id;
+        const currentStatus=req.body;
+        const filter={_id:new ObjectId(id)};
+        const options={upsert:true}
+        const updateDoc={
+          $set:currentStatus
+        }
+        const result=await classCollection.updateOne(filter,updateDoc,options);
+        console.log(result);
+        res.send(result)
+      })
+   
 
 
-    //   // update rooms booking status
-    //   app.patch('/rooms/status/:id',async(req,res)=>{
-    //     const id=req.params.id;
-    //     const status=req.body.status;
-    //     const query={_id:new ObjectId(id)}
-    //     const updateDoc={
-    //       $set:{
-    //         booked:status
-    //       }
-    //     }
-    //     const result=await roomsCollection.updateOne(query,updateDoc);
-    //     res.send(result)
-    //   })
+      // get all users
+      app.get('/users',async(req,res)=>{
+        const result=await usersCollection.find().toArray();
+        res.send(result)
+      })
+      // get all classes
+      app.get('/class',async(req,res)=>{
+        const result=await classCollection.find().toArray();
+        res.send(result)
+      })
 
+    
 
-    //   // get all rooms
-    //   app.get('/rooms',async(req,res)=>{
-    //     const result=await roomsCollection.find().toArray();
-    //     res.send(result)
-    //   })
-
-
-    //   // get host room
-    //   app.get('/rooms/:email',async(req,res)=>{
-    //     const email=req.params.email;
-    //     const query={'host':email}
-    //     const result=await roomsCollection.find().toArray();
-    //     res.send(result)
-    //   })
-
-
-    //   // get single room
-    //   app.get('/room/:id',async(req,res)=>{
-    //     const id=req.params.id;
-    //     const query={_id:new ObjectId(id)}
-    //     const result=await roomsCollection.findOne(query)
-    //     res.send(result)
-    //   })
-
-
-    //   // booking save to database
-    //   app.post('/booking',async(req,res)=>{
-    //     const booking=req.body;
-    //     const result=await bookingsCollection.insertOne(booking);
-    //     res.send(result)
-    //   })
-
-
-
-    //   // get bookings by query
-    //   app.get('/bookings',async(req,res)=>{
-    //     const email=req.query.email;
-    //     if(!email){
-    //       res.send([])
-    //     }
-    //     const query={'guest.email':email}
-    //     const result=await bookingsCollection.find(query).toArray();
-    //     res.send(result)
-    //   })
-
-
-    //   // delete booking by id
-    //   app.delete('/bookings/:id',async(req,res)=>{
-    //       const id=req.params.id;
-    //       const query={_id:new ObjectId(id)}
-    //       const result=await bookingsCollection.deleteOne(query)
-    //       res.send(result)
-    //   })
+    
 
 
 
@@ -142,9 +104,9 @@ async function run() {
 run().catch(console.dir)
 
 app.get('/', (req, res) => {
-  res.send('AirCNC Server is running..')
+  res.send('ananda Server is running..')
 })
 
 app.listen(port, () => {
-  console.log(`AirCNC is running on port ${port}`)
+  console.log(`ananda is running on port ${port}`)
 })
