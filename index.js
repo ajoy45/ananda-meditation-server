@@ -24,6 +24,7 @@ async function run() {
   try {
     const usersCollection = client.db('ananda').collection('users')
     const classCollection = client.db('ananda').collection('class')
+    const bookingCollection = client.db('ananda').collection('booking')
     // const bookingsCollection = client.db('aircncDb').collection('bookings')
 
     // user save to database
@@ -36,11 +37,16 @@ async function run() {
           $set:user
         }
         const result=await usersCollection.updateOne(filter,updateDoc,options);
-        console.log(result);
+        // console.log(result);
         res.send(result)
       })
-
-
+      // get instructor
+      app.get('/instructor',async(req,res)=>{
+        const query={role:"instructor"};
+        const result=await usersCollection.find(query).toArray();
+        res.send(result)
+      })
+        
       // get user as role
       app.get('/users/:email',async(req,res)=>{
         const email=req.params.email;
@@ -48,7 +54,7 @@ async function run() {
         const result=await usersCollection.findOne(query)
         res.send(result)
       })
-
+    
 
       // add class to database
       app.post('/class',async(req,res)=>{
@@ -68,7 +74,7 @@ async function run() {
           $set:currentStatus
         }
         const result=await classCollection.updateOne(filter,updateDoc,options);
-        console.log(result);
+        // console.log(result);
         res.send(result)
       })
    
@@ -84,8 +90,19 @@ async function run() {
         const result=await classCollection.find().toArray();
         res.send(result)
       })
+      // get all approved classes
+      app.get('/class/status',async(req,res)=>{
+        const query={status:'Approved'}
+        const result=await classCollection.find(query).toArray();
+        res.send(result)
+      })
 
-    
+      // select save to database
+      app.post('/booking',async(req,res)=>{
+        const data=req.body;
+        const result=await bookingCollection.insertOne(data);
+        res.send(result)
+      })
 
     
 
