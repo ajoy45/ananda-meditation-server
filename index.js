@@ -103,7 +103,19 @@ async function run() {
         const result=await bookingCollection.insertOne(data);
         res.send(result)
       })
+      // get data from booking
+      app.get('/booking',async(req,res)=>{
+        const result=await bookingCollection.find().toArray();
+        res.send(result)
+      })
+      // delete booking
+      app.delete('/booking/:id',async(req,res)=>{
+        const id=req.params.id;
+        const query={_id:id};
+        const result=await bookingCollection.deleteOne(query);
+        res.send(result)
 
+      })
     
 
 
