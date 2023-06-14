@@ -3,7 +3,7 @@ const app = express()
 const cors = require('cors')
 require('dotenv').config()
 const port = process.env.PORT || 5000
-
+const stripe = require("stripe")(process.env.payment_sk);
 // middleware
 app.use(cors())
 app.use(express.json())
@@ -25,8 +25,21 @@ async function run() {
     const usersCollection = client.db('ananda').collection('users')
     const classCollection = client.db('ananda').collection('class')
     const bookingCollection = client.db('ananda').collection('booking')
-    // const bookingsCollection = client.db('aircncDb').collection('bookings')
-
+    const confirmCollection = client.db('ananda').collection('confirm')
+  
+    //  generate payment
+    app.post('/create-payment-intent',async(req,res)=>{
+      const {price}=req.body;
+      if(price){
+        const amount=parseFloat(price)*100
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: amount,
+          currency: "usd",
+          payment_method_types:["card"]
+        });
+        res.send({clientSecret: paymentIntent.client_secret,})
+      }
+    })
     // user save to database
       app.put('/users/:email',async(req,res)=>{
         const email=req.params.email;
@@ -108,6 +121,12 @@ async function run() {
         const result=await bookingCollection.find().toArray();
         res.send(result)
       })
+      app.get('/booking/:id',async(req,res)=>{
+        const id=req.params.id;
+        const query={_id:id}
+        const result=await bookingCollection.findOne(query)
+        res.send(result)
+      })
       // delete booking
       app.delete('/booking/:id',async(req,res)=>{
         const id=req.params.id;
@@ -116,8 +135,17 @@ async function run() {
         res.send(result)
 
       })
-    
-
+    // confirm
+    app.post('/confirm',async(req,res)=>{
+      const data=req.body;
+      const result=await confirmCollection.insertOne(data);
+      res.send(result)
+    })
+    //  confirm get
+    app.get('/confirm',async(req,res)=>{
+      const result=await confirmCollection.find().toArray();
+      res.send(result)
+    })
 
 
     // Send a ping to confirm a successful connection
