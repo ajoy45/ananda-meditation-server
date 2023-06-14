@@ -18,8 +18,7 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   },
 })
-// user:ajoy
-// pass:girEZ1SqmpWGVeSW
+
 async function run() {
   try {
     const usersCollection = client.db('ananda').collection('users')
@@ -50,7 +49,7 @@ async function run() {
           $set:user
         }
         const result=await usersCollection.updateOne(filter,updateDoc,options);
-        // console.log(result);
+        
         res.send(result)
       })
       // get instructor
@@ -87,7 +86,6 @@ async function run() {
           $set:currentStatus
         }
         const result=await classCollection.updateOne(filter,updateDoc,options);
-        // console.log(result);
         res.send(result)
       })
    
